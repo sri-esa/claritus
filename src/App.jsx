@@ -21,18 +21,18 @@ function MainContent() {
   const { activeTab } = useLegal();
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0' }}>
       {/* Fallback Banner Alert */}
       <FallbackBanner />
 
-      {/* Domain Persona Selector */}
+      {/* Domain Persona Selector — secondary, recedes visually */}
       <PersonaSelector />
 
-      {/* Document Reader / Uploader */}
+      {/* Document Uploader — primary focal hero card */}
       <DocumentUploader />
 
-      {/* Main Feature Active Tab Content */}
-      <section className="mt-6" aria-label="Feature Workspace">
+      {/* Main Feature Workspace */}
+      <section style={{ marginTop: '0.5rem' }} aria-label="Feature Workspace">
         {activeTab === 'simplify' && <DocumentSimplifier />}
         {activeTab === 'risk-radar' && <RiskRadar />}
         {activeTab === 'comparator' && <ContractComparator />}
@@ -40,17 +40,17 @@ function MainContent() {
         {activeTab === 'brief' && <AttorneyBriefModal />}
       </section>
 
-      {/* Educational Disclaimer Footer */}
-      <footer className="mt-16 pt-8 border-t border-slate-800 text-center space-y-3">
-        <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-400">
-          <ShieldAlert className="w-4 h-4 text-emerald-400" />
-          <span>Informational Legal Intelligence & Access Notice</span>
+      {/* Disclaimer footer — very muted */}
+      <footer style={{ marginTop: '4rem', paddingTop: '1.5rem', borderTop: '1px solid #1e293b', textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
+          <ShieldAlert size={13} style={{ color: '#10b981' }} />
+          <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Informational Legal Intelligence Notice</span>
         </div>
-        <p className="text-xs text-slate-400 max-w-3xl mx-auto leading-relaxed">
-          Claritus is a generative AI decision-support platform designed to help users understand, compare, and prepare legal information. Claritus does not provide binding legal advice or replace professional legal counsel. For critical legal transactions, always consult a licensed attorney.
+        <p style={{ margin: '0 auto 0.5rem', maxWidth: '44rem', fontSize: '0.7rem', color: '#334155', lineHeight: 1.6 }}>
+          Claritus is a decision-support platform to help users understand and prepare legal information. It does not provide binding legal advice or replace professional legal counsel.
         </p>
-        <p className="text-[11px] text-slate-400">
-          © {new Date().getFullYear()} Claritus Platform • AI for Legal Assistance & Access
+        <p style={{ margin: 0, fontSize: '0.62rem', color: '#1e293b' }}>
+          © {new Date().getFullYear()} Claritus Platform
         </p>
       </footer>
 
@@ -64,7 +64,7 @@ function MainContent() {
 export default function App() {
   return (
     <LegalProvider>
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+      <div style={{ minHeight: '100vh', background: '#0f172a', color: '#cbd5e1', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
         <Navbar />
         <MainContent />
       </div>

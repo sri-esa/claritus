@@ -1,6 +1,8 @@
 /**
  * Claritus Persona Lens Selector
- * Compact secondary sub-lens controller with high visual distinction for active state.
+ * Secondary sub-panel — recedes visually from primary hero card.
+ * Active card: emerald 2px border + emerald-tinted icon + white bold label.
+ * Inactive: neutral border + muted icon + slate-300 label.
  */
 
 import React from 'react';
@@ -8,10 +10,10 @@ import { useLegal } from '../context/LegalContext.jsx';
 import { Home, Briefcase, UserCheck, Building2, Check } from 'lucide-react';
 
 const PERSONAS = [
-  { id: 'consumer', label: 'Tenant & Consumer', icon: Home, desc: 'Leases, TOS & Warranties' },
-  { id: 'freelancer', label: 'Freelancers & Creators', icon: Briefcase, desc: 'NDAs, MSAs & IP Scope' },
-  { id: 'employee', label: 'Workplace Rights', icon: UserCheck, desc: 'Offers & Non-Competes' },
-  { id: 'smb', label: 'Small Business / SMB', icon: Building2, desc: 'B2B SaaS & Vendor Terms' }
+  { id: 'consumer',  label: 'Tenant & Consumer',     icon: Home,       desc: 'Leases, TOS & Warranties' },
+  { id: 'freelancer',label: 'Freelancers & Creators', icon: Briefcase,  desc: 'NDAs, MSAs & IP Scope' },
+  { id: 'employee',  label: 'Workplace Rights',       icon: UserCheck,  desc: 'Offers & Non-Competes' },
+  { id: 'smb',       label: 'Small Business / SMB',   icon: Building2,  desc: 'B2B SaaS & Vendor Terms' }
 ];
 
 export default function PersonaSelector() {
@@ -23,18 +25,20 @@ export default function PersonaSelector() {
   };
 
   return (
-    <div className="glass-panel-subtle p-3 mb-6 border border-slate-800/80">
-      <div className="flex items-center justify-between gap-2 mb-2 px-1">
-        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          Domain Risk Lens
-        </span>
-        <span className="text-[11px] text-slate-400 font-normal hidden sm:inline">
-          Adapts risk heuristics to your specific legal scenario
+    <div style={{ marginBottom: '1.5rem' }}>
+      {/* Sub-label — clearly smaller and more muted than hero card header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', padding: '0 0.25rem' }}>
+        <span className="section-label">Domain Risk Lens</span>
+        <span style={{ fontSize: '0.7rem', color: '#475569' }}>
+          Adapts heuristics to your legal context
         </span>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: '0.5rem',
+      }} className="persona-grid">
         {PERSONAS.map((p) => {
           const Icon = p.icon;
           const isActive = activePersona === p.id;
@@ -43,29 +47,25 @@ export default function PersonaSelector() {
               key={p.id}
               onClick={() => handleSelect(p.id)}
               aria-pressed={isActive}
-              className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all focus:ring-2 focus:ring-emerald-400 focus:outline-none ${
-                isActive
-                  ? 'bg-emerald-950/70 border-emerald-500/80 text-emerald-100 shadow-md shadow-emerald-950/50 ring-1 ring-emerald-500/50'
-                  : 'bg-slate-900/40 border-slate-800/80 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-              }`}
+              className={`persona-card${isActive ? ' active' : ''}`}
             >
-              <div className={`p-1.5 rounded-lg shrink-0 transition-colors ${
-                isActive ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'
-              }`}>
-                {isActive ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Icon className="w-3.5 h-3.5" />}
+              <div className="persona-icon">
+                {isActive ? <Check size={14} strokeWidth={3} style={{ color: '#10b981' }} /> : <Icon size={14} />}
               </div>
-              <div className="min-w-0">
-                <span className={`block font-bold text-xs truncate ${isActive ? 'text-emerald-200' : 'text-slate-200'}`}>
-                  {p.label}
-                </span>
-                <span className="block text-[10px] text-slate-400 truncate mt-0.5">
-                  {p.desc}
-                </span>
+              <div style={{ minWidth: 0 }}>
+                <span className={`persona-label${isActive ? ' active' : ''}`}>{p.label}</span>
+                <span className="persona-desc">{p.desc}</span>
               </div>
             </button>
           );
         })}
       </div>
+
+      <style>{`
+        @media (min-width: 768px) {
+          .persona-grid { grid-template-columns: repeat(4, 1fr) !important; }
+        }
+      `}</style>
     </div>
   );
 }

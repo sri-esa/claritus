@@ -1,7 +1,10 @@
 /**
  * Claritus Contextual Legal Q&A Copilot
- * Sanitized text rendering, direct document section citations,
- * instant prompt chips, and fallback-aware engine execution.
+ * - Section header uses section-label + section-title hierarchy
+ * - Suggested prompts use .btn-chip (pill, transparent, outline, wrap cleanly)
+ * - "Ask Copilot" input uses .input-text (emerald focus ring)
+ * - "Ask Copilot" button uses .btn-primary (solid emerald fill)
+ * - No logic changes
  */
 
 import React, { useState } from 'react';
@@ -11,30 +14,27 @@ import { answerQuestionWithGemini } from '../engine/geminiClient.js';
 import { answerQuestionHeuristically } from '../engine/heuristicLegalEngine.js';
 
 const SUGGESTED_PROMPTS = [
-  "What is my financial penalty for early termination?",
-  "Who owns the IP and pre-existing code created under this contract?",
-  "Is there an automatic lease or contract renewal clause?",
-  "What are the notice requirements before entering or modifying terms?"
+  'What is my financial penalty for early termination?',
+  'Who owns the IP and pre-existing code created under this contract?',
+  'Is there an automatic lease or contract renewal clause?',
+  'What are the notice requirements before entering or modifying terms?'
 ];
 
 export default function LegalQnACopilot() {
   const { documentText, apiKey, activePersona, qnaHistory, dispatch } = useLegal();
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState('');
   const [isAsking, setIsAsking] = useState(false);
 
   const handleAsk = async (qText) => {
     const targetQ = qText || question;
     if (!targetQ.trim()) return;
-
     setIsAsking(true);
     let result;
-
     if (apiKey) {
       result = await answerQuestionWithGemini(apiKey, targetQ, documentText, activePersona);
     } else {
       result = answerQuestionHeuristically(targetQ, documentText, activePersona);
     }
-
     dispatch({
       type: 'ADD_QNA_ITEM',
       payload: {
@@ -46,8 +46,7 @@ export default function LegalQnACopilot() {
         timestamp: new Date().toLocaleTimeString()
       }
     });
-
-    setQuestion("");
+    setQuestion('');
     setIsAsking(false);
   };
 
@@ -57,132 +56,147 @@ export default function LegalQnACopilot() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="glass-panel p-6">
-        <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-800">
-          <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg">
-            <MessageSquare className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-100">Interactive Legal Document Copilot</h3>
-            <p className="text-xs text-slate-400">
-              Ask targeted questions about your contract clauses, obligations, penalties, or IP terms.
-            </p>
-          </div>
+    <div className="glass-panel" style={{ padding: '1.5rem' }}>
+
+      {/* Section header */}
+      <div style={{ paddingBottom: '1rem', marginBottom: '1rem', borderBottom: '1px solid #1e293b' }}>
+        <span className="section-label"><MessageSquare size={11} />Legal Copilot Q&amp;A</span>
+        <h3 className="section-title">Interactive Legal Document Copilot</h3>
+        <p className="section-desc">Ask targeted questions about clauses, obligations, penalties, or IP terms.</p>
+      </div>
+
+      {/* Suggested prompts — pill chips, wrap cleanly */}
+      <div style={{ marginBottom: '1.25rem' }}>
+        <p style={{ margin: '0 0 0.5rem', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Sparkles size={11} style={{ color: '#10b981' }} />Suggested Questions
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+          {SUGGESTED_PROMPTS.map((prompt, idx) => (
+            <button key={idx} onClick={() => handleAsk(prompt)} className="btn-chip">
+              {prompt}
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* Suggested Quick Prompts */}
-        <div className="mb-6">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2 flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> Suggested Questions:
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {SUGGESTED_PROMPTS.map((prompt, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleAsk(prompt)}
-                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/40 text-slate-300 text-xs rounded-lg text-left transition-colors"
-              >
-                {prompt}
-              </button>
-            ))}
+      {/* Chat transcript */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.25rem', maxHeight: '28rem', overflowY: 'auto', paddingRight: '0.25rem' }}>
+        {qnaHistory.length === 0 ? (
+          <div style={{
+            padding: '2rem 1rem', textAlign: 'center', borderRadius: '8px',
+            border: '1px solid #1e293b', background: '#0b1220',
+            fontSize: '0.75rem', color: '#475569'
+          }}>
+            No questions asked yet. Pick a suggested prompt above or type below.
           </div>
-        </div>
+        ) : (
+          qnaHistory.map((item) => (
+            <div key={item.id} className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
 
-        {/* Q&A Chat Transcript */}
-        <div className="space-y-4 mb-6 max-h-[500px] overflow-y-auto pr-1">
-          {qnaHistory.length === 0 ? (
-            <div className="bg-slate-950/60 p-8 rounded-xl border border-slate-900 text-center text-slate-400 text-xs">
-              No questions asked yet. Pick a suggested question above or type a custom prompt below.
-            </div>
-          ) : (
-            qnaHistory.map((item) => (
-              <div key={item.id} className="space-y-3 animate-fade-in">
-                {/* User Message */}
-                <div className="flex items-start gap-3 justify-end">
-                  <div className="bg-emerald-950/80 border border-emerald-800/80 p-3 rounded-xl max-w-lg text-xs text-emerald-100">
-                    <p className="font-semibold text-[11px] text-emerald-300 mb-1 flex items-center gap-1">
-                      <User className="w-3.5 h-3.5" /> You:
-                    </p>
-                    {item.question}
-                  </div>
-                </div>
-
-                {/* Assistant Answer */}
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-slate-800 text-slate-300 rounded-lg shrink-0 mt-1">
-                    <Bot className="w-4 h-4" />
-                  </div>
-
-                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl max-w-2xl text-xs text-slate-200 space-y-2">
-                    <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-800">
-                      <span className="font-bold text-slate-300 flex items-center gap-1">
-                        Claritus Copilot
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${
-                          item.engineUsed === 'gemini' 
-                            ? 'bg-purple-950 text-purple-300 border-purple-800' 
-                            : 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                        }`}>
-                          {item.engineUsed === 'gemini' ? '✨ Gemini AI' : '⚙️ Heuristic'}
-                        </span>
-                        <span className="text-[10px] text-slate-500">{item.timestamp}</span>
-                      </div>
-                    </div>
-
-                    {/* Sanitized Text Answer */}
-                    <div className="whitespace-pre-wrap leading-relaxed font-sans text-slate-300">
-                      {item.answer}
-                    </div>
-
-                    {/* Section Citation Anchor Button */}
-                    {item.citation && (
-                      <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between">
-                        <span className="text-[11px] text-slate-400">
-                          Cited Section: <strong>{item.citation.title}</strong>
-                        </span>
-                        <button
-                          onClick={() => handleJumpToSection(item.citation.sectionRef)}
-                          className="flex items-center gap-1 px-2 py-1 bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-[11px] font-semibold rounded transition-colors"
-                        >
-                          Jump to {item.citation.sectionRef} <ExternalLink className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+              {/* User bubble */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <div style={{
+                  maxWidth: '32rem', padding: '0.625rem 0.875rem',
+                  background: 'rgba(16,185,129,0.08)',
+                  border: '1px solid rgba(16,185,129,0.2)',
+                  borderRadius: '12px 12px 2px 12px',
+                  fontSize: '0.75rem', color: '#a7f3d0',
+                }}>
+                  <p style={{ margin: '0 0 0.25rem', fontSize: '0.62rem', fontWeight: 700, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <User size={11} />You
+                  </p>
+                  {item.question}
                 </div>
               </div>
-            ))
-          )}
 
-          {isAsking && (
-            <div className="flex items-center gap-3 text-slate-400 text-xs animate-pulse p-4">
-              <Bot className="w-4 h-4 text-emerald-400" />
-              <span>Claritus Copilot is analyzing document context...</span>
+              {/* Bot bubble */}
+              <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'flex-start' }}>
+                <div style={{ padding: '0.4rem', background: '#253649', borderRadius: '8px', color: '#64748b', flexShrink: 0, marginTop: '0.125rem' }}>
+                  <Bot size={14} />
+                </div>
+                <div style={{
+                  flex: 1, maxWidth: '40rem', padding: '0.875rem',
+                  background: '#1e293b', border: '1px solid #334155',
+                  borderRadius: '2px 12px 12px 12px',
+                  fontSize: '0.75rem', color: '#cbd5e1',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid #334155' }}>
+                    <span style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '0.7rem' }}>Claritus Copilot</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{
+                        fontSize: '0.58rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em',
+                        padding: '0.1rem 0.4rem', borderRadius: '4px',
+                        background: item.engineUsed === 'gemini' ? 'rgba(139,92,246,0.15)' : 'rgba(16,185,129,0.08)',
+                        color: item.engineUsed === 'gemini' ? '#c4b5fd' : '#6ee7b7',
+                        border: `1px solid ${item.engineUsed === 'gemini' ? 'rgba(139,92,246,0.3)' : 'rgba(16,185,129,0.2)'}`,
+                      }}>
+                        {item.engineUsed === 'gemini' ? '✦ Gemini AI' : '⚙ Heuristic'}
+                      </span>
+                      <span style={{ fontSize: '0.6rem', color: '#334155' }}>{item.timestamp}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.65, color: '#cbd5e1' }}>
+                    {item.answer}
+                  </div>
+
+                  {item.citation && (
+                    <div style={{ marginTop: '0.625rem', paddingTop: '0.625rem', borderTop: '1px solid #1e293b', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: '0.65rem', color: '#475569' }}>
+                        Cited: <strong style={{ color: '#94a3b8' }}>{item.citation.title}</strong>
+                      </span>
+                      <button
+                        onClick={() => handleJumpToSection(item.citation.sectionRef)}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                          padding: '0.2rem 0.5rem', borderRadius: '5px',
+                          background: 'rgba(16,185,129,0.08)',
+                          border: '1px solid rgba(16,185,129,0.25)',
+                          color: '#6ee7b7', fontSize: '0.62rem', fontWeight: 600,
+                          cursor: 'pointer', transition: 'background 150ms',
+                        }}
+                      >
+                        Jump to {item.citation.sectionRef} <ExternalLink size={10} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
-        </div>
+          ))
+        )}
 
-        {/* Question Input Form */}
-        <form onSubmit={(e) => { e.preventDefault(); handleAsk(); }} className="flex gap-2">
-          <input
-            type="text"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Type your question about this document..."
-            className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-slate-200 text-xs placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
-          <button
-            type="submit"
-            disabled={isAsking || !question.trim()}
-            className="btn-primary px-5 py-2.5 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 shrink-0 focus:ring-2 focus:ring-emerald-400"
-          >
-            <Send className="w-4 h-4" />
-            Ask Copilot
-          </button>
-        </form>
+        {isAsking && (
+          <div className="animate-pulse" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem', fontSize: '0.75rem', color: '#475569' }}>
+            <Bot size={14} style={{ color: '#10b981' }} />
+            Claritus Copilot is analyzing document context…
+          </div>
+        )}
       </div>
+
+      {/* Input row */}
+      <form
+        onSubmit={(e) => { e.preventDefault(); handleAsk(); }}
+        style={{ display: 'flex', gap: '0.5rem' }}
+      >
+        <input
+          type="text"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Type your question about this document…"
+          className="input-text"
+          style={{ flex: 1 }}
+        />
+        <button
+          type="submit"
+          disabled={isAsking || !question.trim()}
+          className="btn-primary"
+          style={{ flexShrink: 0 }}
+        >
+          <Send size={14} />
+          Ask Copilot
+        </button>
+      </form>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 /**
- * Claritus Header & High-Contrast Tab Navigation Navbar
+ * Claritus Header & Tab Navigation Navbar
+ * Nav tabs use active bottom-border accent (not filled pill).
+ * Engine badge is a muted informational pill.
  */
 
 import React from 'react';
@@ -16,56 +18,62 @@ const TABS = [
 
 export default function Navbar() {
   const { activeTab, apiKey, analysisResult, dispatch } = useLegal();
-
   const isGeminiActive = Boolean(apiKey && analysisResult?.engineUsed === 'gemini');
 
   return (
-    <header className="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
-          
-          {/* Logo & Brand Name */}
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 rounded-xl shadow-lg shadow-emerald-500/20 font-bold">
-              <Scale className="w-5 h-5 stroke-[2.5]" />
+    <header className="nav-header">
+      <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '0 1.5rem' }}>
+
+        {/* Top row: logo + engine badge */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '4rem' }}>
+
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              padding: '0.5rem',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              borderRadius: '10px',
+              color: '#000',
+              display: 'flex',
+              boxShadow: '0 2px 10px rgba(16,185,129,0.3)'
+            }}>
+              <Scale size={18} strokeWidth={2.5} />
             </div>
             <div>
-              <h1 className="text-xl font-extrabold tracking-tight text-slate-100 font-heading">
+              <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>
                 Claritus
               </h1>
-              <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
-                GenAI Legal Intelligence & Access Platform
+              <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b', fontWeight: 500 }}>
+                GenAI Legal Intelligence &amp; Access Platform
               </p>
             </div>
           </div>
 
-          {/* Engine Status & API Key Config Button */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true })}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all focus:ring-2 focus:ring-emerald-400 focus:outline-none ${
-                isGeminiActive
-                  ? 'bg-purple-950/90 text-purple-200 border-purple-600/80 hover:bg-purple-900 shadow-md shadow-purple-950/50'
-                  : 'bg-emerald-950/90 text-emerald-200 border-emerald-600/80 hover:bg-emerald-900 shadow-md shadow-emerald-950/50'
-              }`}
-            >
-              {isGeminiActive ? (
-                <>
-                  <Sparkles className="w-3.5 h-3.5 text-purple-300 animate-pulse" />
-                  <span>Gemini AI Active</span>
-                </>
-              ) : (
-                <>
-                  <Key className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Offline Heuristic Engine</span>
-                </>
-              )}
-            </button>
-          </div>
+          {/* Engine status badge — muted pill, not a primary action */}
+          <button
+            onClick={() => dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true })}
+            className={`engine-badge${isGeminiActive ? ' gemini' : ''}`}
+            title={isGeminiActive ? 'Gemini AI Active — click to reconfigure' : 'Click to add Gemini API key'}
+          >
+            {isGeminiActive
+              ? <><Sparkles size={11} /><span>Gemini AI</span></>
+              : <><Key size={11} /><span>Offline Engine</span></>
+            }
+          </button>
         </div>
 
-        {/* Tab Navigation */}
-        <nav className="flex items-center gap-1.5 overflow-x-auto py-2.5 scrollbar-none border-t border-slate-900" aria-label="Main Navigation">
+        {/* Tab row — underline-style active tab */}
+        <nav
+          aria-label="Main Navigation"
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            gap: '0.125rem',
+            overflowX: 'auto',
+            borderTop: '1px solid #1e293b',
+            scrollbarWidth: 'none',
+          }}
+        >
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -74,13 +82,9 @@ export default function Navbar() {
                 key={tab.id}
                 onClick={() => dispatch({ type: 'SET_ACTIVE_TAB', payload: tab.id })}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap focus:ring-2 focus:ring-emerald-400 focus:outline-none ${
-                  isActive
-                    ? 'btn-primary shadow-lg shadow-emerald-950/60'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/80'
-                }`}
+                className={`nav-tab${isActive ? ' active' : ''}`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon size={14} />
                 <span>{tab.label}</span>
               </button>
             );
