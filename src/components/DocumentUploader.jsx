@@ -1,16 +1,16 @@
 /**
- * Claritus Document Reader & File Uploader
- * Supports file drag & drop, raw text paste, sample document picker,
- * and scanned image PDF detection with user fallback alert.
+ * Claritus Primary Hero Document Reader & Uploader
+ * Sleek compressed dropzone, elevated visual hierarchy,
+ * solid filled emerald CTAs, and rich visual sample document cards.
  */
 
 import React, { useState } from 'react';
 import { useLegal } from '../context/LegalContext.jsx';
-import { FileText, Upload, Sparkles, Copy, Check } from 'lucide-react';
+import { FileText, Upload, Sparkles, Copy, Check, FileCheck, ShieldAlert, ArrowUpRight } from 'lucide-react';
 import { SYNTHETIC_SAMPLE_DOCS } from '../data/syntheticLegalDocs.js';
 
 export default function DocumentUploader() {
-  const { documentText, documentTitle, dispatch } = useLegal();
+  const { documentText, documentTitle, activePersona, dispatch } = useLegal();
   const [isDragging, setIsDragging] = useState(false);
   const [isEditingText, setIsEditingText] = useState(false);
   const [rawInput, setRawInput] = useState(documentText);
@@ -63,39 +63,45 @@ export default function DocumentUploader() {
   };
 
   return (
-    <div className="glass-panel p-4 mb-6">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg">
-            <FileText className="w-5 h-5" />
+    <div className="hero-card p-6 mb-8">
+      {/* Primary Header & Active Document Status Bar */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-5 pb-4 border-b border-slate-800/80">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 bg-emerald-500 text-slate-950 rounded-xl shadow-lg shadow-emerald-500/20 font-bold shrink-0">
+            <FileText className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+                Active Document
+              </span>
+              <span className="text-xs text-slate-400 font-mono">
+                {documentText.split(/\s+/).length} words
+              </span>
+            </div>
+            <h2 className="text-base md:text-lg font-bold text-slate-100 mt-0.5">
               {documentTitle}
             </h2>
-            <p className="text-xs text-slate-400">
-              {documentText.split(/\s+/).length} words • Parsed digital sections
-            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap self-end md:self-auto">
           <button
             onClick={() => {
               setIsEditingText(!isEditingText);
               setRawInput(documentText);
             }}
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors border border-slate-700 focus:ring-2 focus:ring-emerald-400"
+            className="btn-secondary px-3.5 py-2 text-xs font-semibold flex items-center gap-1.5 focus:ring-2 focus:ring-emerald-400"
           >
             {isEditingText ? 'Cancel Edit' : 'Edit / Paste Text'}
           </button>
           
           <button
             onClick={handleCopyText}
-            className="flex items-center gap-1 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-lg transition-colors border border-slate-700"
+            className="btn-secondary px-3.5 py-2 text-xs font-semibold flex items-center gap-1.5"
           >
             {copiedNotice ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            {copiedNotice ? 'Copied' : 'Copy'}
+            {copiedNotice ? 'Copied' : 'Copy Text'}
           </button>
         </div>
       </div>
@@ -105,75 +111,108 @@ export default function DocumentUploader() {
           <textarea
             value={rawInput}
             onChange={(e) => setRawInput(e.target.value)}
-            rows={10}
+            rows={8}
             placeholder="Paste raw legal agreement text here..."
-            className="w-full p-3 bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-slate-200 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
           />
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setIsEditingText(false)}
-              className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-medium rounded-lg"
+              className="btn-secondary px-4 py-2 text-xs"
             >
               Cancel
             </button>
             <button
               onClick={handleApplyText}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg transition-colors"
+              className="btn-primary px-5 py-2 text-xs"
             >
               Analyze Updated Text
             </button>
           </div>
         </div>
       ) : (
-        <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
-            isDragging
-              ? 'border-emerald-400 bg-emerald-950/20'
-              : 'border-slate-800 bg-slate-950/40 hover:border-slate-700'
-          }`}
-        >
-          <div className="flex flex-col items-center justify-center gap-2">
-            <div className="p-3 bg-slate-900 border border-slate-800 rounded-full text-slate-400">
-              <Upload className="w-6 h-6" />
-            </div>
-            <p className="text-sm font-medium text-slate-200">
-              Drag & Drop your Legal Document (.txt, .pdf, .docx)
-            </p>
-            <p className="text-xs text-slate-400 max-w-sm">
-              Text files are processed locally. For scanned image PDFs without selectable text, paste your text manually.
-            </p>
+        <div className="space-y-4">
+          {/* Compressed Sleek Horizontal Dropzone */}
+          <div
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            className={`border-2 border-dashed rounded-xl p-4 transition-all ${
+              isDragging
+                ? 'border-emerald-400 bg-emerald-950/30'
+                : 'border-slate-800/90 bg-slate-950/50 hover:border-slate-700'
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3 text-left">
+                <div className="p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-emerald-400 shrink-0">
+                  <Upload className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-200">
+                    Upload your Legal Agreement (.txt, .pdf, .docx)
+                  </p>
+                  <p className="text-[11px] text-slate-400">
+                    Files are processed locally in your browser. For image scans, use text paste.
+                  </p>
+                </div>
+              </div>
 
-            <label className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg cursor-pointer transition-colors focus:ring-2 focus:ring-emerald-400">
-              <span>Browse File</span>
-              <input
-                type="file"
-                accept=".txt,.pdf,.docx,.doc"
-                onChange={(e) => handleFileUpload(e.target.files[0])}
-                className="hidden"
-              />
-            </label>
+              <label className="btn-primary px-4 py-2 text-xs cursor-pointer shrink-0 flex items-center gap-1.5 focus:ring-2 focus:ring-emerald-400">
+                <span>Browse File</span>
+                <input
+                  type="file"
+                  accept=".txt,.pdf,.docx,.doc"
+                  onChange={(e) => handleFileUpload(e.target.files[0])}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
 
-          {/* Quick Synthetic Sample Loader Buttons */}
-          <div className="mt-6 pt-4 border-t border-slate-900 flex flex-wrap items-center justify-center gap-2">
-            <span className="text-[11px] text-slate-400 font-semibold uppercase flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-emerald-400" /> Or load synthetic sample:
+          {/* Rich Visual Synthetic Sample Cards */}
+          <div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              Or Load Synthetic Sample Legal Contract:
             </span>
-            {Object.entries(SYNTHETIC_SAMPLE_DOCS).map(([key, doc]) => (
-              <button
-                key={key}
-                onClick={() => {
-                  dispatch({ type: 'SET_DOCUMENT', payload: { text: doc.text, title: doc.title } });
-                  dispatch({ type: 'SET_PERSONA', payload: doc.vertical });
-                }}
-                className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 text-slate-300 text-[11px] rounded transition-colors"
-              >
-                {doc.verticalLabel}
-              </button>
-            ))}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {Object.entries(SYNTHETIC_SAMPLE_DOCS).map(([key, doc]) => {
+                const isCurrent = documentTitle === doc.title;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      dispatch({ type: 'SET_DOCUMENT', payload: { text: doc.text, title: doc.title } });
+                      dispatch({ type: 'SET_PERSONA', payload: doc.vertical });
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+                      isCurrent
+                        ? 'bg-emerald-950/40 border-emerald-500/80 shadow-md ring-1 ring-emerald-500/40'
+                        : 'bg-slate-900/50 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/80'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <span className={`text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded ${
+                          isCurrent ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300'
+                        }`}>
+                          {doc.verticalLabel}
+                        </span>
+                        <ArrowUpRight className="w-3 h-3 text-slate-500" />
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-200 line-clamp-1 mt-1">
+                        {doc.title}
+                      </h4>
+                      <p className="text-[10px] text-slate-400 line-clamp-2 mt-1 leading-relaxed">
+                        {doc.description}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

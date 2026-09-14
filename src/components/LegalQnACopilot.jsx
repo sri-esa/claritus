@@ -171,12 +171,12 @@ export default function LegalQnACopilot() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Type your question about this document..."
-            className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-200 text-xs placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-slate-200 text-xs placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
           <button
             type="submit"
             disabled={isAsking || !question.trim()}
-            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-xs rounded-lg transition-colors flex items-center gap-1.5 focus:ring-2 focus:ring-emerald-400"
+            className="btn-primary px-5 py-2.5 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 shrink-0 focus:ring-2 focus:ring-emerald-400"
           >
             <Send className="w-4 h-4" />
             Ask Copilot
